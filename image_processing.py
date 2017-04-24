@@ -35,9 +35,9 @@ def simpleImageProcessing(image: np.ndarray) -> np.ndarray:
 
 
 if __name__ == '__main__':
-    test_file_path = glob.glob('test_files/images/*.jpg')[0]
+    test_file_path = glob.glob('test_files/full_images/*.jpg')[0]
     test_file = basename(test_file_path)[:-4]
-    expected_file = glob.glob('test_files/results/Image_01*.png')
+    expected_file = glob.glob('test_files/full_results/Image_01*.png')
     image = cv2.imread(test_file_path)
     expected = cv2.imread(expected_file[0])
     result = simpleImageProcessing(image)

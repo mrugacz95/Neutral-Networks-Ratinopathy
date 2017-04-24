@@ -18,7 +18,7 @@ def main():
     parser.add_argument('-m',
                         '--method',
                         required=True,
-                        help='Method for testing images (image_processing; neural_networks)')
+                        help='Method for testing full_images (image_processing; neural_networks)')
     parser.add_argument('-s',
                         '--source-files',
                         required=True,
@@ -26,11 +26,11 @@ def main():
     parser.add_argument('-t',
                         '--test-files',
                         required=True,
-                        help='Files for comparing results')
+                        help='Files for comparing full_results')
     parser.add_argument('-o',
                         '--output',
                         required=True,
-                        help='Dir for output images')
+                        help='Dir for output full_images')
     args = parser.parse_args()
 
     expected_files = glob.glob(args.test_files)
