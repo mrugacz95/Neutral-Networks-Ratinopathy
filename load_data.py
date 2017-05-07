@@ -10,15 +10,16 @@ image_size = 28
 
 def load_retinopathy_data():
     num_pixels = image_size * image_size
-    all_images = glob.glob('test_files/cropped_images/*.jpg')[:2500]
+    all_images = glob.glob('test_files/cropped_images/*.jpg')
     data = np.empty((len(all_images), image_size * image_size))
     results = np.empty(len(all_images))
     for idx, file_path in enumerate(all_images):
         file_name = basename(file_path)
         num, score = file_name.replace(r'.jpg', '').split('_')
-        score = round(float(score))
+        #score = round(float(score))
         img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
         img = np.reshape(img, num_pixels).astype('float32')
+        img /= 256
         data[idx] = img
         results[idx] = score
     num_train = round(len(data) * ratio_taining_to_test)

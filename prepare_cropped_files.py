@@ -19,6 +19,8 @@ def crop_image(source_image: np.ndarray, result_image: np.ndarray, shape: tuple)
         if not cropped_result_image[cropped_result_image > 0].any():
             continue
         is_vein = result_image[x_offset + round(shape[0] / 2), y_offset + round(shape[1] / 2)] / 255
+        if not is_vein > 0.01 and round(random.random()) == 1:
+            continue
         cropped_image = source_image[x_offset: x_offset + w, y_offset: y_offset + h]
 
         return cropped_image, cropped_result_image, is_vein
@@ -35,7 +37,7 @@ def main():
                         '--number',
                         type=int,
                         help='Number of generated files',
-                        default=1000)
+                        default=10000)
     parser.add_argument('-o',
                         '--output',
                         type=str,
@@ -59,16 +61,18 @@ def main():
     crop_shape = (w, h, 3)
     count = 0
     output_dir = args.output
+    vein_images_count = 0
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     for file_path in glob.glob(output_dir + "*.jpg"):
         os.remove(file_path)
     for file_path in source_files:
-        full_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+        full_image = cv2.imread(file_path) #, cv2.IMREAD_GRAYSCALE)
+        full_image = full_image[:, :, 1] #only green
         full_image_filename = basename(file_path)
         output_image_filepath = glob.glob('test_files/full_results/' + splitext(full_image_filename)[0] + '*.png')[0]
         output_image = cv2.imread(output_image_filepath, cv2.IMREAD_GRAYSCALE)
-        output_image = cv2.blur(output_image, (5, 5))
+        output_image = cv2.blur(output_image, (11, 11))
         for photo in range(crop_per_file):
             cropped_image, cropped_output_image, is_vein = crop_image(full_image, output_image, crop_shape)
             # save
@@ -77,12 +81,15 @@ def main():
             if save_result_images:
                 output_path = output_dir + str(count) + '_' + 'output' + '_' + '%.2f' % is_vein + '.jpg'
                 cv2.imwrite(output_path, cropped_output_image)
+            if is_vein:
+                vein_images_count += 1
             count += 1
             print(count, 'out of', args.number, 'path:', output_path)
             if count == args.number:
                 break
         if count == args.number:
             break
+    print('vein samples: ', vein_images_count, ', not vein samples: ', count - vein_images_count, ', all: ', count)
 
 
 if __name__ == '__main__':

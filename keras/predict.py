@@ -27,7 +27,7 @@ def main():
         img = np.reshape(img, (28, 28))
         plt.imshow(img, cmap='gray')
         # input = input.reshape(1, num_pixels).astype('float32')
-        result = loaded_model.predict_proba(input_data, verbose=1)
+        result = loaded_model.predict(input_data, verbose=1)
         print(result, 'expected:', y_test[i])
         plt.show()
 

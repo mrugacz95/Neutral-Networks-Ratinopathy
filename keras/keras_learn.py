@@ -26,7 +26,10 @@ def load_mnist_data():
 
 def main():
     (X_train, y_train), (X_test, y_test), num_pixels = load_retinopathy_data()
-
+    if len(X_train) == 0:
+        print('Empty training set')
+        return
+    print('Train set size:', len(X_train))
     # define baseline model
     def baseline_model():
         # create model
