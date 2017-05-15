@@ -4,6 +4,8 @@ import os
 import random
 from os.path import basename, splitext
 
+import sys
+from etaprogress.progress import ProgressBar
 import numpy as np
 import cv2
 import math
@@ -38,7 +40,7 @@ def main():
                         '--number',
                         type=int,
                         help='Number of generated files',
-                        default=50000)
+                        default=100000)
     parser.add_argument('-o',
                         '--output',
                         type=str,
@@ -48,7 +50,7 @@ def main():
                         '--image-size',
                         type=int,
                         help='Cropped image size ',
-                        default=16)
+                        default=18)
     parser.add_argument('-r',
                         '--save-result-images',
                         type=bool,
@@ -68,9 +70,11 @@ def main():
         os.makedirs(output_dir)
     for file_path in glob.glob(output_dir + "*.jpg"):
         os.remove(file_path)
+
+    bar = ProgressBar(args.number)
     for file_path in source_files:
         full_image = cv2.imread(file_path)  # , cv2.IMREAD_GRAYSCALE)
-        full_image = full_image[:, :, 1]  # only green
+        #full_image = full_image[:, :, 1]  # only green
         full_image_filename = basename(file_path)
         output_image_filepath = glob.glob('test_files/full_results/' + splitext(full_image_filename)[0] + '*')[0]
         output_image = cv2.imread(output_image_filepath, cv2.IMREAD_GRAYSCALE)
@@ -86,7 +90,10 @@ def main():
             if is_vein:
                 vein_images_count += 1
             if count % 100 == 0:
-                print(count, 'out of', args.number, 'vein samples: ', vein_images_count, ', not vein samples: ', count - vein_images_count, ', all: ', count)
+                bar.numerator = count
+                print(bar, end='\r')
+                sys.stdout.flush()
+                #print(count, 'out of', args.number, 'vein samples: ', vein_images_count, ', not vein samples: ', count - vein_images_count, ', all: ', count)
             count += 1
             if count == args.number:
                 break
