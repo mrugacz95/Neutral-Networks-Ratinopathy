@@ -18,7 +18,7 @@ def gamma_correction(img, correction):
     return np.uint8(img * 255)
 
 
-def simpleImageProcessing(image: np.ndarray) -> np.ndarray:
+def simpleImageProcessingEqHist(image: np.ndarray) -> np.ndarray:
     rows, cols, channels = image.shape
     result = image.copy()
     result[:, :, 0] = cv2.equalizeHist(image[:, :, 0])
@@ -34,10 +34,26 @@ def simpleImageProcessing(image: np.ndarray) -> np.ndarray:
     return result
 
 
+def simpleImageProcessing(image: np.ndarray) -> np.ndarray:
+    #image[:, :, 0] = cv2.equalizeHist(image[:, :, 0])
+    #image = cv2.equalizeHist(image[:, :, 1])
+    #image = image[:, :, 1]
+    #image[:, :, 2] = cv2.equalizeHist(image[:, :, 2])
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #image = cv2.equalizeHist(image[:, :, 1])
+    image = cv2.medianBlur(image, 9)
+    image = gamma_correction(image, 1.2)
+    #ret, th1 = cv2.threshold(image, 20, 255, cv2.THRESH_BINARY)
+    #th2 = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 2)
+    th3 = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 27, 2)
+    th3 = 255 - th3
+    return th3
+
+
 if __name__ == '__main__':
-    test_file_path = glob.glob('test_files/full_images/*.jpg')[0]
+    test_file_path = glob.glob('test_files/full_images/*')[0]
     test_file = splitext(basename(test_file_path))[0]
-    expected_file = glob.glob('test_files/full_results/Image_01*.png')
+    expected_file = glob.glob('test_files/full_results/*')
     image = cv2.imread(test_file_path)
     expected = cv2.imread(expected_file[0])
     result = simpleImageProcessing(image)

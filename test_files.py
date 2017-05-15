@@ -1,5 +1,6 @@
 import argparse
 import glob
+import os
 from importlib import import_module
 
 import cv2
@@ -39,6 +40,11 @@ def main():
     else:
         processImage = neural_networks
     source_files = glob.glob(args.source_files)
+    if len(source_files) == 0:
+        print("Images not found")
+
+    for file_path in glob.glob(args.output + "/*"):
+        os.remove(file_path)
     i = 1
     for file_path in source_files:
         file_name = basename(file_path)
