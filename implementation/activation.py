@@ -1,16 +1,20 @@
+from abc import abstractmethod
+
 import numpy as np
 from scipy.special import expit
 
 
-class Activation():
+class Activation:
+    @abstractmethod
     def forward(self, x: np.ndarray):
         pass
 
+    @abstractmethod
     def derivative(self, x: np.ndarray):
         pass
 
 
-class Sigmoid(Activation):
+class Sigmoid:
     def forward(self, x: np.ndarray):
         # sig = np.vectorize(lambda: 1 / (1 + math.exp(-x))) # slow
         # return sig(x)
@@ -20,7 +24,7 @@ class Sigmoid(Activation):
         return x * (1.0 - x)
 
 
-class Tanh(Activation):
+class Tanh:
     def forward(self, x: np.ndarray):
         return np.tanh(x)
 
@@ -28,16 +32,16 @@ class Tanh(Activation):
         return 1 - np.power(x, 2)
 
 
-class ReLU(Activation):
+class ReLU:
     def forward(self, x: np.ndarray):
         return np.max(x)
 
-    def derivative(self, x: np.ndarray): #todo pass bias
+    def derivative(self, x: np.ndarray):  # todo pass bias
         d = np.vectorize(lambda x: 1 if x > 0 else 0)
         return d(x)
 
 
-class Softmax(Activation):
+class Softmax:
     def forward(self, x: np.ndarray):
         exp_scores = np.exp(x)
         return exp_scores / np.sum(exp_scores, axis=1, keepdims=True)

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 class Network:
     def __init__(self):
         self.layers = list()
+        self.learning_rate = 0.01
 
     def load_model(self, model_path):
         with open(model_path)as model_file:
@@ -31,13 +32,23 @@ class Network:
             data = layer.process_data(data)
         return data
 
-    def backward_propagation(self, loss: float):
-        pass
+    def online_backward_propagation(self, error: list):
+        for example in error:
+            error = example
+            for layer in reversed(self.layers[1:-1]):
+                error = layer.update_single_weight(error, self.learning_rate)
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         data = self.forward_propagation(data)
         return np.argmax(data, axis=1)
 
-    def calculate_error(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
-        return np.sum(((model - output) / 2) ** 2)
+    def calculate_loss(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
+        return np.sum(self.calculate_error(output, model))
 
+    def calculate_error(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
+        return ((model - output) / 2) ** 2
+
+    def fit(self, X, y, iters: int):
+        for i in range(iters):
+            result = self.forward_propagation(X)
+            self.online_backward_propagation(result)
