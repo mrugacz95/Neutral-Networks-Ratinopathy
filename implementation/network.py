@@ -1,5 +1,6 @@
 import json
-from sklearn import datasets
+
+from sklearn.metrics import mean_squared_error
 
 from implementation.activation import *
 from implementation.layer import *
@@ -25,23 +26,18 @@ class Network:
             layer.set_bottom_layer(self.layers[-1])
         self.layers.append(layer)
 
-    def predict(self, data: np.ndarray):
+    def forward_propagation(self, data: np.ndarray) -> np.ndarray:
         for layer in self.layers:
             data = layer.process_data(data)
         return data
 
+    def backward_propagation(self, loss: float):
+        pass
 
-def generate_data():
-    np.random.seed(0)
-    X, y = datasets.make_moons(200, noise=0.20)
-    return X, y
+    def predict(self, data: np.ndarray) -> np.ndarray:
+        data = self.forward_propagation(data)
+        return np.argmax(data, axis=1)
 
-if __name__ == '__main__':
-    network = Network()
-    network.add_layer(InputLayer(2))
-    network.add_layer(Dense(Tanh(), 3))
-    network.add_layer(Dense(Softmax(), 1))
-    X, y = generate_data()
-    plot_decision_boundary(lambda x: network.predict(X), X, y)
-    plt.title("Decision Boundary for hidden layer size 3")
-    plt.show()
+    def calculate_error(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
+        return np.sum(((model - output) / 2) ** 2)
+

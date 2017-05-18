@@ -25,6 +25,8 @@ class Dense(Layer):
         data = self.activation.forward(data)
         return data
 
+    def calculate_error(self, los):
+        pass
 
 class InputLayer(Layer):
     def __init__(self, nodes_num: int):
