@@ -8,20 +8,26 @@ class Layer:
 
 
 class Dense(Layer):
-    def __init__(self, activation, nodes_num: int):
+    def __init__(self, nodes_num: int, activation, input_shape: tuple = None,
+                 weights: np.ndarray = None, bias : np.ndarray = None):
         super().__init__(nodes_num)
         self.activation = activation
-        self.bottom_layer = None
-        self.weights = None
-        self.bias = np.zeros((1, nodes_num))
+        self.weights = weights
+        if bias is None:
+            bias = np.zeros((1, nodes_num))
+        self.bias = bias
         self.error = 0
+        self.top_layer = None
+        self.input_shape = input_shape
+        self.id = None
 
-    def set_bottom_layer(self, layer):
-        self.bottom_layer = layer
-        bottom_size = layer.nodes_num
-        self.weights = np.random.randn(bottom_size, self.nodes_num) / np.sqrt(self.nodes_num)  # normal dist / sqrt
+    def set_top_layer(self, layer: Layer):
+        self.top_layer = layer
+        top_size = layer.nodes_num
+        if self.weights is None and self.input_shape is None:
+            self.weights = np.random.randn(top_size, self.nodes_num) / np.sqrt(self.nodes_num)  # normal dist / sqrt(node_num)
 
-    def process_data(self, data):
+    def process_data(self, data : np.ndarray):
         data = np.dot(data, self.weights) + self.bias
         data = self.activation.forward(data)
         return data
@@ -32,13 +38,8 @@ class Dense(Layer):
         self.weights = self.weights * learning_rate * dev
         return np.sum(error)
 
+    def set_id(self, id):
+        self.id = id
 
-class InputLayer(Layer):
-    def __init__(self, nodes_num: int):
-        super().__init__(nodes_num)
-        self.nodes_num = nodes_num
-
-    def process_data(self, data: np.ndarray):
-        if not data.shape != (None, self.nodes_num):
-            raise NameError('Wrong input size')
-        return data
+    def __str__(self):
+        return str(self.id) + " weights:\n" + str(self.weights) + "\nbias: " + str(self.bias)

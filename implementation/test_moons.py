@@ -30,12 +30,11 @@ def plot_decision_boundary(pred_func, X, y):
 
 def main():
     network = Network()
-    network.add_layer(InputLayer(2))
-    network.add_layer(Dense(Tanh(), 2))
-    network.add_layer(Dense(Tanh(), 3))
-    network.add_layer(Dense(Softmax(), 1))
+    network.add_layer(Dense(2, Tanh()))
+    network.add_layer(Dense(3, Tanh()))
+    network.add_layer(Dense(1, Softmax()))
     X, y = generate_data()
-    network.fit(X,y,2000)
+    network.fit(X, y, 2000)
     print(network.predict(X))
     plot_decision_boundary(network.predict, X, y)
 
