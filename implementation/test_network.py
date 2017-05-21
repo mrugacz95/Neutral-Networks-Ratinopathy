@@ -5,19 +5,23 @@ import numpy as np
 
 
 def main():
-    network = Network(learning_rate=0.5)
+    network = Network(learning_rate=0.1)
     network.add_layer(
-        Dense(2, Sigmoid(), input_shape=(2,), weights=np.array([[.15, 0.25], [.2, .3]]),
-              bias=np.array([.35, .35])))
+        Dense(2, Sigmoid(), input_num=2, weights=np.array([[.1, 0.3], [.2, -0.1]]),
+              bias=np.array([.2, .1])))
     network.add_layer(
-        Dense(2, Sigmoid(), input_shape=(2,), weights=np.array([[.4, 0.5], [.45, .55]]), bias=np.array([.6, .6])))
+        Dense(1, Sigmoid(), weights=np.array([[-0.1],[.2],]), bias=np.array([-0.2])))
     network.print_weights()
-    output = network.forward_propagation(np.array([[.05, .1]]))
-    error = network.calculate_error(output, np.array([0.01,0.99]))
-    print(error)
-    print('output:',output)
+    output = network.forward_propagation(np.array([[1, 0], [1, 0], [1, 0]]))
+    print('output', output)
+    error = network.calculate_error(output, np.array([[1],[1],[1]]))
+    print('error',error)
+    error = np.array([[0.5343]])
     network.online_backward_propagation(error)
     network.print_weights()
+
+    output = network.forward_propagation(np.array([[1, 0], [1, 0], [1, 0]]))
+    print('output', output)
 
 
 if __name__ == '__main__':

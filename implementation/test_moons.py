@@ -12,7 +12,10 @@ from implementation.activation import *
 def generate_data():
     np.random.seed(0)
     X, y = datasets.make_moons(200, noise=0.20)
-    return X, y
+    model = np.zeros((len(y),1))
+    for idx, data in np.ndenumerate(y):
+        model[idx] = data
+    return X, model
 
 
 def plot_decision_boundary(pred_func, X, y):
@@ -30,9 +33,8 @@ def plot_decision_boundary(pred_func, X, y):
 
 def main():
     network = Network()
-    network.add_layer(Dense(2, Tanh()))
-    network.add_layer(Dense(3, Tanh()))
-    network.add_layer(Dense(1, Softmax()))
+    network.add_layer(Dense(3, Sigmoid(),input_num=2))
+    network.add_layer(Dense(1, Sigmoid()))
     X, y = generate_data()
     network.fit(X, y, 2000)
     print(network.predict(X))

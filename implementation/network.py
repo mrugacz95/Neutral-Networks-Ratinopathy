@@ -23,9 +23,9 @@ class Network:
         pass
 
     def add_layer(self, layer: Dense):
-        if self.layers:  # not empty
-            self.layers[-1].set_top_layer(layer)
         layer.set_id(len(self.layers))
+        if self.layers:  # not empty
+            layer.set_bottom_layer(self.layers[-1])
         self.layers.append(layer)
 
     def forward_propagation(self, data: np.ndarray) -> np.ndarray:
@@ -34,27 +34,29 @@ class Network:
         return data
 
     def online_backward_propagation(self, error: np.ndarray):
-        for idx, example in np.ndenumerate(error):
-            error = example
+        for idx in range(len(error)):
+            current_error = error[idx]
             for layer in reversed(self.layers):
-                error = layer.update_single_weight(error, self.learning_rate)
+                current_error = layer.update_single_weight(current_error, self.learning_rate, idx)
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         data = self.forward_propagation(data)
         return np.argmax(data, axis=1)
 
     def calculate_loss(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
-        return np.sum(self.calculate_error(output, model))
+        return np.sum(self.calculate_error(output, model))/len(model)
 
     def calculate_error(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
         error = ((model - output) ** 2) / 2
-        print('error:', error)
-        return np.sum(error, axis=1)
+        return error
 
     def fit(self, X, y, iters: int):
         for i in range(iters):
             result = self.forward_propagation(X)
-            self.online_backward_propagation(result)
+            error = self.calculate_error(output=result, model=y)
+            self.online_backward_propagation(error)
+            loss = self.calculate_loss(output=result, model=y)
+            print(i, loss)
 
     def print_weights(self):
         for layer in self.layers:
