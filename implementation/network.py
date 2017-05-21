@@ -12,6 +12,7 @@ class Network:
     def __init__(self, learning_rate=0.01):
         self.layers = list()
         self.learning_rate = learning_rate
+        self.history = None
 
     def load_model(self, model_path):
         with open(model_path)as model_file:
@@ -41,23 +42,34 @@ class Network:
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         data = self.forward_propagation(data)
-        return np.argmax(data, axis=1)
+        return np.round(data)
 
     def calculate_loss(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
-        return np.sum(self.calculate_error(output, model))/len(model)
+        # return np.sum(self.calculate_error(output, model))/len(model)
+        return np.sum(((model - output) ** 2) / 2)
 
     def calculate_error(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
-        error = ((model - output) ** 2) / 2
+        error = model - output
         return error
 
     def fit(self, X, y, iters: int):
+        self.history = np.empty(iters)
         for i in range(iters):
             result = self.forward_propagation(X)
-            error = self.calculate_error(output=result, model=y)
-            self.online_backward_propagation(error)
+            errors = self.calculate_error(output=result, model=y)
+            self.online_backward_propagation(errors)
             loss = self.calculate_loss(output=result, model=y)
+            self.history[i] = loss
             print(i, loss)
 
     def print_weights(self):
         for layer in self.layers:
             print(layer)
+
+    def show_loss(self):
+        plt.plot(self.history)
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('iter')
+        plt.legend(['loss'], loc='upper left')
+        plt.show()

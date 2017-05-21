@@ -45,3 +45,6 @@ class Softmax:
     def forward(self, x: np.ndarray):
         exp_scores = np.exp(x)
         return exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+    def derivative(self, x: np.ndarray):
+        return x * (1.0 - x)

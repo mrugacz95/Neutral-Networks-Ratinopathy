@@ -43,7 +43,7 @@ class Dense(Layer):
 
     def update_single_weight(self, delta: np.ndarray, learning_rate: float, data_idx: int):
         derivative = self.activation.derivative(self.output[data_idx])
-        next_error = np.multiply(delta.T, self.weights)*derivative
+        next_error = np.sum(np.multiply(delta.T, self.weights)*derivative, axis=1)
         for j in range(self.nodes_num):
             my_delta = derivative[j] * delta[j]
             self.bias[j] += learning_rate*my_delta
