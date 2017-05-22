@@ -22,6 +22,7 @@ def main():
 
     output = network.forward_propagation(np.array([[1, 0], [1, 0], [1, 0]]))
     print('output', output)
+    print('output should be around 0.4712')
 
 
 if __name__ == '__main__':

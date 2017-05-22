@@ -1,11 +1,10 @@
 import json
-
-from sklearn.metrics import mean_squared_error
-
+import sys
 from implementation.activation import *
 from implementation.layer import *
 import numpy as np
 import matplotlib.pyplot as plt
+from etaprogress.progress import ProgressBar
 
 
 class Network:
@@ -30,6 +29,8 @@ class Network:
         self.layers.append(layer)
 
     def forward_propagation(self, data: np.ndarray) -> np.ndarray:
+        if data.shape[1] != self.layers[0].input_num:
+            raise NameError("Wrong dataset size", data.shape[1], 'and', self.layers[0].input_num)
         for layer in self.layers:
             data = layer.process_data(data)
         return data
@@ -42,25 +43,32 @@ class Network:
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         data = self.forward_propagation(data)
-        return np.round(data)
+        return data
 
     def calculate_loss(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
         # return np.sum(self.calculate_error(output, model))/len(model)
-        return np.sum(((model - output) ** 2) / 2)
+        return np.sum(((model - output) ** 2) / 2) / len(model)
 
     def calculate_error(self, output: np.ndarray, model: np.ndarray) -> np.ndarray:
         error = model - output
         return error
 
-    def fit(self, X, y, iters: int):
+    def fit(self, X, y, iters: int, verbose: bool = True):
         self.history = np.empty(iters)
+        bar = ProgressBar(iters)
         for i in range(iters):
             result = self.forward_propagation(X)
             errors = self.calculate_error(output=result, model=y)
             self.online_backward_propagation(errors)
             loss = self.calculate_loss(output=result, model=y)
             self.history[i] = loss
-            print(i, loss)
+            if not verbose and i % 150 == 0:
+                bar.numerator = i
+                sys.stdout.write('\r')
+                sys.stdout.write(str(bar))
+                sys.stdout.flush()
+        if not verbose:
+            print('Finished fitting')
 
     def print_weights(self):
         for layer in self.layers:
@@ -69,7 +77,7 @@ class Network:
     def show_loss(self):
         plt.plot(self.history)
         plt.title('model accuracy')
-        plt.ylabel('accuracy')
+        plt.ylabel('loss')
         plt.xlabel('iter')
         plt.legend(['loss'], loc='upper left')
         plt.show()
