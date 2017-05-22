@@ -39,7 +39,7 @@ def plot_decision_boundary(pred_func, X, y):
 
 def main():
     network = Network(learning_rate=.1)
-    network.add_layer(Dense(5, Sigmoid(), input_num=2))
+    network.add_layer(Dense(5, Tanh(), input_num=2))
     network.add_layer(Dense(1, Sigmoid()))
     X, y = generate_random(200)  # or generate_moons(200, 0.3)
     # fix model
@@ -47,10 +47,13 @@ def main():
     for idx, data in np.ndenumerate(y):
         model[idx] = data
     # learn
-    network.fit(X, model, 2000, verbose=False)
+    network.fit(X, model, 20, verbose=False)
     plot_decision_boundary(network.predict, X, y)
     network.show_loss()
+    network.save_model()
 
+    loaded_network = Network.load_model()
+    plot_decision_boundary(loaded_network.predict, X, y)
 
 if __name__ == '__main__':
     main()

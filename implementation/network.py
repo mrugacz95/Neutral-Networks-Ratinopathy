@@ -13,16 +13,18 @@ class Network:
         self.learning_rate = learning_rate
         self.history = None
 
-    def load_model(self, model_path):
-        with open(model_path)as model_file:
-            data = json.load(model_file)
-            # todo parse model
+    @staticmethod
+    def load_model(model_path: str = 'my_model.json') -> 'Network':
+        with open(model_path) as model_file:
+            json_obj = json.load(model_file)
+            return Network.from_json(json_obj)
 
-    def save_model(self):
-        # todo parse model
+    def save_model(self, model_path: str = 'my_model.json'):
+        with open(model_path, 'w+') as outfile:
+            json.dump(self.to_json(), outfile)
         pass
 
-    def add_layer(self, layer: Dense):
+    def add_layer(self, layer: Layer):
         layer.set_id(len(self.layers))
         if self.layers:  # not empty
             layer.set_bottom_layer(self.layers[-1])
@@ -81,3 +83,16 @@ class Network:
         plt.xlabel('iter')
         plt.legend(['loss'], loc='upper left')
         plt.show()
+
+    def to_json(self):
+        json_layers = list()
+        for layer in self.layers:
+            json_layers.append(layer.to_json())
+        return json_layers
+
+    @staticmethod
+    def from_json(json_object) -> 'Network':
+        network = Network()
+        for json_layer in json_object:
+            network.add_layer(Layer.from_json(json_obj=json_layer))
+        return network
