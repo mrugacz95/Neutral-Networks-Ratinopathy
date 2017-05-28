@@ -1,5 +1,9 @@
 import json
+import os
 import sys
+
+from Lib.pathlib import Path
+
 from implementation.activation import *
 from implementation.layer import *
 import numpy as np
@@ -15,7 +19,7 @@ class Network:
 
     @staticmethod
     def load_model(model_path: str = 'my_model.json') -> 'Network':
-        with open(model_path) as model_file:
+        with open(model_path, 'r') as model_file:
             json_obj = json.load(model_file)
             return Network.from_json(json_obj)
 
@@ -64,13 +68,13 @@ class Network:
             self.online_backward_propagation(errors)
             loss = self.calculate_loss(output=result, model=y)
             self.history[i] = loss
-            if not verbose and i % 150 == 0:
+            if not verbose:
                 bar.numerator = i
                 sys.stdout.write('\r')
                 sys.stdout.write(str(bar))
                 sys.stdout.flush()
         if not verbose:
-            print('Finished fitting')
+            print('\nFinished fitting')
 
     def print_weights(self):
         for layer in self.layers:

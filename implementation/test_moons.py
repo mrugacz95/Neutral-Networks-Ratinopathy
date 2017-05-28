@@ -41,13 +41,13 @@ def main():
     network = Network(learning_rate=.1)
     network.add_layer(Dense(5, Tanh(), input_num=2))
     network.add_layer(Dense(1, Sigmoid()))
-    X, y = generate_random(200)  # or generate_moons(200, 0.3)
+    X, y = generate_moons(200, 0.2)  # or generate_moons(200, 0.3)
     # fix model
     model = np.zeros((len(y), 1))
     for idx, data in np.ndenumerate(y):
         model[idx] = data
     # learn
-    network.fit(X, model, 20, verbose=False)
+    network.fit(X, model, 2000, verbose=False)
     plot_decision_boundary(network.predict, X, y)
     network.show_loss()
     network.save_model()
