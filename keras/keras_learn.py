@@ -4,7 +4,10 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, np
 from keras.optimizers import RMSprop
 from keras.utils import np_utils
-from load_data import load_retinopathy_data
+from sklearn.preprocessing import normalize
+
+import config
+from load_data import load_retinopathy_data, load_from_pickle
 import matplotlib.pyplot as plt
 
 
@@ -27,7 +30,8 @@ def load_mnist_data():
 
 
 def main():
-    (X_train, y_train), (X_test, y_test), shape = load_retinopathy_data()
+    #(X_train, y_train), (X_test, y_test), shape = load_retinopathy_data()
+    (X_train, y_train), (X_test, y_test), shape = load_from_pickle()
     if len(X_train) == 0:
         print('Empty training set')
         return
@@ -35,13 +39,10 @@ def main():
 
     # define baseline model
     def baseline_model():
-        num_pixels = np.prod(shape)
         model = Sequential()
-        model.add(Dense(num_pixels, input_dim=num_pixels, activation='relu'))  # num_pixels
+        model.add(Dense(config.input_num, input_dim=config.input_num, activation='relu'))  # num_pixels
         model.add(Dropout(0.5))
-        model.add(Dense(80,kernel_initializer='normal', activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(40,kernel_initializer='normal', activation='relu'))
+        model.add(Dense(10,kernel_initializer='normal', activation='relu'))
         model.add(Dropout(0.5))
         model.add(Dense(1,kernel_initializer='normal', activation='sigmoid'))
         # Compile model
@@ -52,6 +53,7 @@ def main():
     # build the model
     model = baseline_model()
     # Fit the model
+    X_train = normalize(X_train)
     history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=250, batch_size=500, verbose=2)
     # Final evaluation of the model
     scores = model.evaluate(X_test, y_test, verbose=0)

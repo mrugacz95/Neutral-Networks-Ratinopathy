@@ -8,59 +8,50 @@ import sys
 from etaprogress.progress import ProgressBar
 import cv2
 import numpy as np
-# from keras.models import model_from_json
 import matplotlib.pyplot as plt
 
+import config
 from config import calculate_hu_moments, cropped_image_shape, hist_equalize
 from implementation.network import Network
 from load_data import load_retinopathy_data
 
+from sklearn.preprocessing import normalize
 
 def predict(input_data, loaded_model):
     value = loaded_model.predict_proba(input_data, verbose=1)
     return value
 
 
-# def load_model():
-#     json_file = open('model.json', 'r')
-#     loaded_model_json = json_file.read()
-#     json_file.close()
-#     loaded_model = model_from_json(loaded_model_json)
-#     # load weights into new model
-#     loaded_model.load_weights("model.h5")
-#     # evaluate loaded model on test data
-#     loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-#     print("Loaded model from disk")
-#     return loaded_model
+def load_model():
+    from keras.models import model_from_json
+    json_file = open('model.json', 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights("model.h5")
+    # evaluate loaded model on test data
+    loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    print("Loaded model from disk")
+    return loaded_model
 
 
 def process_image(filepath: str, output: str):
-    # loaded_model = load_model()
-    # network_input_shape = loaded_model.inputs[0].shape
-
-    network = Network.load_model()
-    # if np.prod(input_shape) != np.prod(network_input_shape):
-    #     print('Wrong input shape', input_shape, '!=', network_input_shape)
-    #     return
     input_w, input_h, d = cropped_image_shape
-    num_pixels = np.prod(cropped_image_shape)
     image = cv2.imread(filepath)
-    image = image[:, :, 1]
-    # image = image[400:700, 400:700]
     predict_date = datetime.datetime.now().strftime("%Y %m %d %H %M %S")
     source_file_path = output + predict_date + '_source.jpg'
     cv2.imwrite(source_file_path, image)
-    image = np.divide(image, 255)
     result = np.zeros((image.shape[0], image.shape[1]), np.uint8)
-    w, h = image.shape
+    w, h, d = image.shape
     output_shape = (w - input_w) * (h - input_h)
-    network_input = np.empty((output_shape, 7))
+    network_input = np.empty((output_shape, config.input_num))
     index = 0
     bar = ProgressBar(output_shape)
     for x in range(0, w - input_w):
         for y in range(0, h - input_h):
             cropped_img = image[x:x + input_w, y:y + input_h]
-            cropped_img = calculate_hu_moments(cropped_img)
+            cropped_img = config.preprocess(cropped_img)
             network_input[index] = cropped_img
             if index % 1000 == 0:
                 # print(index, ' out of ', output_shape)
@@ -68,15 +59,17 @@ def process_image(filepath: str, output: str):
                 print(bar, end='\r')
                 sys.stdout.flush()
             index += 1
-    # values = predict(network_input, loaded_model)
-    values = network.predict(network_input)
+    if config.predic_woth_keras:
+        network_input = normalize(network_input)
+        values = predict(network_input, load_model())
+    else:
+        network = Network.load_model()
+        values = network.predict(network_input)
+
     values = np.reshape(values, (w - input_w, h - input_h))
     cv2.imshow('result', values)
-    values = np.round(values)
     values *= 255
     cv2.imwrite(output + predict_date + '.jpg', values)
-    # th1 = cv2.adaptiveThreshold(values.astype('uint8'), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    # ret, th1 = cv2.threshold(values, 127, 255, cv2.THRESH_BINARY)
     cv2.imwrite(output + predict_date + '_thresholding.jpg', values)
     print('\nFinished')
     cv2.waitKey()
@@ -102,6 +95,6 @@ def main():
 
 
 if __name__ == '__main__':
-    test_file_path = glob.glob('test_files/test1*')[0]
+    test_file_path = glob.glob('test_files/test2*')[0]
     test_file_name = splitext(basename(test_file_path))[0]
     result = process_image(test_file_path, 'test_files/output/')

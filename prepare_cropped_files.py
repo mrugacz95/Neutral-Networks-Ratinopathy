@@ -42,7 +42,7 @@ def crop_image(source_image: np.ndarray, result_image: np.ndarray, picture_of_ve
         x_offset = random.randint(0, source_image.shape[0] - w)
         y_offset = random.randint(0, source_image.shape[1] - h)
         cropped_result_image = result_image[x_offset: x_offset + w, y_offset: y_offset + h]
-        if config.select_only_pics_containing_vein and not cropped_result_image[cropped_result_image > 0].any():
+        if config.pics_containing_vein_ratio > random.random() and not cropped_result_image[cropped_result_image > 0].any():
             continue
         is_vein = np.round(result_image[x_offset + math.ceil(w / 2), y_offset + math.ceil(h / 2)] / 255)
         if picture_of_vein != is_vein:
@@ -74,7 +74,7 @@ def main():
         os.remove(file_path)
 
     bar = ProgressBar(config.number_of_samples)
-    pickle_output = { 'X' :np.empty((config.number_of_samples, np.prod(config.network_input_shape)), dtype=float),
+    pickle_output = { 'X' :np.empty((config.number_of_samples, config.input_num), dtype=float),
                       'y':np.empty(config.number_of_samples, dtype=int)
                       }
     for file_path in source_files:
@@ -85,8 +85,9 @@ def main():
             cropped_image, cropped_output_image, is_vein = crop_image(full_image, output_image,
                                                                       count * config.vein_pics_to_no_vein_ratio > vein_images_count)
             # save
-            output_path = output_dir + str(count) + '_' + '%.2f' % is_vein + '.jpg'
-            cv2.imwrite(output_path, cropped_image)
+            if config.save_files_as_images:
+                output_path = output_dir + str(count) + '_' + '%.2f' % is_vein + '.jpg'
+                cv2.imwrite(output_path, cropped_image)
             pickle_output['X'][count] = cropped_image
             pickle_output['y'][count] = is_vein
             if save_result_images:
@@ -101,6 +102,8 @@ def main():
         if count == config.number_of_samples:
             break
     pickle.dump(pickle_output, open('pdataset.p', 'wb'))
+    for i in range(0,10):
+        print(pickle_output['X'][i])
     print('vein samples: ', vein_images_count, ', not vein samples: ', count - vein_images_count, ', all: ', count)
 
 

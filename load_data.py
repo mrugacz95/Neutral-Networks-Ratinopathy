@@ -51,4 +51,4 @@ def load_from_pickle():
 
 
 if __name__ == '__main__':
-    load_from_pickle()
+    data = load_from_pickle()

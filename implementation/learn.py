@@ -19,12 +19,13 @@ def learn():
     (X_train, y_train), (X_test, y_test), shape = load_data()
     num_pixels = 7
 
-    network = Network(learning_rate=0.0003)
-    network.add_layer(Dense(15, Sigmoid(), input_num=num_pixels))
-    network.add_layer(Dense(8, Sigmoid()))
+    network = Network()
+    network.add_layer(Dense(7, Sigmoid(), input_num=num_pixels))
+    network.add_layer(Dense(5, Sigmoid()))
     network.add_layer(Dense(1, Sigmoid()))
-    network.fit(X_train, y_train, 800, verbose=False)
+    network.fit(X_train, y_train, 400, verbose=False)
     network.save_model()
+    validate()
     network.show_loss()
 
 
@@ -44,4 +45,4 @@ def validate():
 
 
 if __name__ == '__main__':
-    validate()
+    learn()
