@@ -21,9 +21,7 @@ def split_data(data, results):
 
 def load_retinopathy_data():
     random.seed(77)
-    positive = glob.glob('test_files/cropped_images/*1.00.jpg')[:4000]
-    negative = glob.glob('test_files/cropped_images/*0.00.jpg')[:4000]
-    all_images = positive + negative
+    all_images = glob.glob('test_files/cropped_images/')
     random.shuffle(all_images)
     data = np.empty((len(all_images), input_num))
     results = np.empty(len(all_images))
@@ -52,3 +50,6 @@ def load_from_pickle():
 
 if __name__ == '__main__':
     data = load_from_pickle()
+    dataset = pickle.load(open("pdataset.p", "rb"))
+    y = dataset['y']
+    print(len(y[y==1]),len(y))

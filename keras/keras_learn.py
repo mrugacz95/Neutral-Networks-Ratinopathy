@@ -1,7 +1,8 @@
+import keras
 import numpy
 from keras.datasets import mnist
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, np
+from keras.layers import Dense, Dropout, np, Activation, Conv2D, MaxPooling2D, Flatten
 from keras.optimizers import RMSprop
 from keras.utils import np_utils
 from sklearn.preprocessing import normalize
@@ -42,9 +43,11 @@ def main():
         model = Sequential()
         model.add(Dense(config.input_num, input_dim=config.input_num, activation='relu'))  # num_pixels
         model.add(Dropout(0.5))
-        model.add(Dense(10,kernel_initializer='normal', activation='relu'))
+        model.add(Dense(120,kernel_initializer='normal', activation='relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(1,kernel_initializer='normal', activation='sigmoid'))
+        model.add(Dense(20,kernel_initializer='normal', activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(2,kernel_initializer='normal', activation='sigmoid'))
         # Compile model
 
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -53,8 +56,10 @@ def main():
     # build the model
     model = baseline_model()
     # Fit the model
-    X_train = normalize(X_train)
-    history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=250, batch_size=500, verbose=2)
+
+    y_train = keras.utils.to_categorical(y_train, 2)
+    y_test = keras.utils.to_categorical(y_test, 2)
+    history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=config.epochs, batch_size=64, verbose=2)
     # Final evaluation of the model
     scores = model.evaluate(X_test, y_test, verbose=0)
     print("Baseline Error: %.2f%%" % (100 - scores[1] * 100))

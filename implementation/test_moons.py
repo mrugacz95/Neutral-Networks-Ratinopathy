@@ -9,7 +9,7 @@ from implementation.layer import *
 from implementation.activation import *
 
 
-def generate_moons(examples: int, noise: float):
+def generate_moons(examples: int, noise: float=0.2):
     X, y = datasets.make_moons(examples, noise=noise)
     return X, y
 
@@ -39,18 +39,16 @@ def plot_decision_boundary(pred_func, X, y):
 
 def main():
     network = Network(learning_rate=.1)
-    network.add_layer(Dense(5, Tanh(), input_num=2))
-    network.add_layer(Dense(1, Sigmoid()))
-    X, y = generate_random(200)  # or generate_moons(200, 0.3)
-    # fix model
-    model = np.zeros((len(y), 1))
-    for idx, data in np.ndenumerate(y):
-        model[idx] = data
+    network.add_layer(Dense(nodes_num=5, activation=Tanh(), input_num=2))
+    network.add_layer(Dense(nodes_num=1, activation=Sigmoid()))
+    inputs, targets = generate_circles(400)
+    # fit model
+    network.fit(inputs, targets, 200, verbose=False)
     # learn
-    network.fit(X, model, 200, verbose=False)
-    plot_decision_boundary(network.predict, X, y)
     network.show_loss()
     network.save_model()
+
+    plot_decision_boundary(network.predict, inputs, targets)
 
     loaded_network = Network.load_model()
     plot_decision_boundary(loaded_network.predict, X, y)

@@ -27,11 +27,11 @@ def simpleImageProcessingEqHist(image: np.ndarray) -> np.ndarray:
     blur = cv2.GaussianBlur(result, (5, 5), 0)
     gray_image = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
     inv_image = cv2.bitwise_not(gray_image)
-    mask = np.zeros((rows, cols), np.uint8)
-    mask = cv2.circle(mask, (int(rows / 2), int(cols / 2)), int(image.shape[0] / 2), (255, 255, 255), thickness=-1)
-    gama_cor = gamma_correction(inv_image, 2.0)
-    result = cv2.bitwise_and(mask, gama_cor, mask=mask)
-    return result
+    # mask = np.zeros((rows, cols), np.uint8)
+    # mask = cv2.circle(mask, (int(rows / 2), int(cols / 2)), int(image.shape[0] / 2), (255, 255, 255), thickness=-1)
+    # gama_cor = gamma_correction(inv_image, 2.0)
+    # result = cv2.bitwise_and(mask, gama_cor, mask=mask)
+    return gray_image
 
 
 def simpleImageProcessing(image: np.ndarray) -> np.ndarray:
@@ -53,17 +53,18 @@ def simpleImageProcessing(image: np.ndarray) -> np.ndarray:
 if __name__ == '__main__':
     test_file_path = glob.glob('test_files/full_images/*')[0]
     test_file = splitext(basename(test_file_path))[0]
-    expected_file = glob.glob('test_files/full_results/*')
+    # expected_file = glob.glob('test_files/full_results/' + test_file)
     image = cv2.imread(test_file_path)
-    expected = cv2.imread(expected_file[0])
-    result = simpleImageProcessing(image)
+    # expected = cv2.imread(expected_file[0])
+    result = simpleImageProcessingEqHist(image)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    expected = cv2.cvtColor(expected, cv2.COLOR_BGR2GRAY)
-    difference = result - expected
-    plt.subplot(141), plt.imshow(image), plt.title('ORIGINAL')
-    plt.subplot(142), plt.imshow(expected, 'gray'), plt.title('EXPECTED')
-    plt.subplot(143), plt.imshow(result, 'gray'), plt.title('RESULT')
-    plt.subplot(144), plt.imshow(difference, 'gray'), plt.title('DIFFERENCE')
+    # expected = cv2.cvtColor(expected, cv2.COLOR_BGR2GRAY)
+    # difference = result - expected
+    # plt.subplot(141), plt.imshow(image), plt.title('ORIGINAL')
+    # plt.subplot(142), plt.imshow(expected, 'gray'), plt.title('EXPECTED')
+    # plt.subplot(143), plt.imshow(result, 'gray'), plt.title('RESULT')
+    # plt.subplot(144), plt.imshow(difference, 'gray'), plt.title('DIFFERENCE')
+    cv2.imwrite('simplest_output.jpg',result)
 
     plt.show()
     cv2.waitKey()
