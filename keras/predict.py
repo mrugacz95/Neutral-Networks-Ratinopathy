@@ -108,7 +108,7 @@ def main():
 
 
 if __name__ == '__main__':
-    test_file_path = glob.glob('test_files/test1*')[0]
+    test_file_path = glob.glob('test_files/test2*')[0]
     test_file_name = splitext(basename(test_file_path))[0]
     result = process_image(test_file_path, 'test_files/output/')
     # d = np.array([ [0,1] , [0.1,0.7], [0.3, 0.5],[0.5,0.502], [1,0.0]])

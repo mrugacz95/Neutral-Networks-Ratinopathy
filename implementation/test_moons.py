@@ -1,3 +1,5 @@
+import random
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
@@ -9,19 +11,35 @@ from implementation.layer import *
 from implementation.activation import *
 
 
-def generate_moons(examples: int, noise: float=0.2):
+def pack_targets(data):
+    targets = np.zeros((len(data), 1))
+    for idx, data in np.ndenumerate(data):
+        targets[idx] = data
+    return targets
+
+
+def generate_moons(examples: int, noise: float = 0.2):
     X, y = datasets.make_moons(examples, noise=noise)
-    return X, y
+    return X, pack_targets(y)
 
 
 def generate_circles(examples: int, noise: float = 0.2, factor: float = 0.3):
     X, y = datasets.make_circles(examples, noise=noise, factor=factor)
-    return X, y
+    return X, pack_targets(y)
 
 
-def generate_random(examples: int = 250):
+def generate_classification(examples: int = 250):
     X, y = datasets.make_classification(examples, n_features=2, n_redundant=0)
-    return X, y
+    return X, pack_targets(y)
+
+
+def generate_random():
+    return {
+        0: generate_moons,
+        1: generate_circles,
+        2: generate_classification,
+
+    }[random.randint(0, 2)]
 
 
 def plot_decision_boundary(pred_func, X, y):
@@ -43,15 +61,12 @@ def main():
     network.add_layer(Dense(nodes_num=1, activation=Sigmoid()))
     inputs, targets = generate_circles(400)
     # fit model
-    network.fit(inputs, targets, 200, verbose=False)
+    network.fit(inputs, targets, 380, verbose=True)
     # learn
     network.show_loss()
     network.save_model()
-
     plot_decision_boundary(network.predict, inputs, targets)
 
-    loaded_network = Network.load_model()
-    plot_decision_boundary(loaded_network.predict, X, y)
 
 if __name__ == '__main__':
     main()

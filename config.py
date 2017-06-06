@@ -3,17 +3,17 @@ import random
 import cv2
 import numpy as np
 
-cropped_image_shape = (16, 16, 1)
-network_input_shape = (256,)
+cropped_image_shape = (21, 21, 1)
+network_input_shape = (441,)
 vein_pics_to_no_vein_ratio = 0.25
 input_num = np.prod(network_input_shape)
 pics_containing_vein_ratio = 0.25
-number_of_samples = 40000
+number_of_samples = 250000
 ratio_training_to_test = 0.8
 predict_with_keras = True
 save_files_as_images = False
 pack_to_pickle = True
-epochs = 350
+epochs = 50
 
 
 def calculate_hu_moments(img: np.ndarray):

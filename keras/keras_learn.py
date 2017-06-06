@@ -41,11 +41,7 @@ def main():
     # define baseline model
     def baseline_model():
         model = Sequential()
-        model.add(Dense(config.input_num, input_dim=config.input_num, activation='relu'))  # num_pixels
-        model.add(Dropout(0.5))
-        model.add(Dense(120,kernel_initializer='normal', activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(20,kernel_initializer='normal', activation='relu'))
+        model.add(Dense(512, input_dim=config.input_num, activation='relu'))  # num_pixels
         model.add(Dropout(0.5))
         model.add(Dense(2,kernel_initializer='normal', activation='sigmoid'))
         # Compile model
@@ -59,7 +55,7 @@ def main():
 
     y_train = keras.utils.to_categorical(y_train, 2)
     y_test = keras.utils.to_categorical(y_test, 2)
-    history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=config.epochs, batch_size=64, verbose=2)
+    history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=config.epochs, batch_size=32, verbose=2)
     # Final evaluation of the model
     scores = model.evaluate(X_test, y_test, verbose=0)
     print("Baseline Error: %.2f%%" % (100 - scores[1] * 100))
